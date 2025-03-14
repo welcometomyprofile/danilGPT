@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPT-4 Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            text-align: center;
+            background-color: #f4f4f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #333;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+            background: #fff;
+        }
+        button {
+            margin-top: 15px;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            min-height: 60px;
+            text-align: left;
+            font-size: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <h2>Чат с GPT-4</h2>
+    <textarea id="userInput" placeholder="Введите ваш вопрос..."></textarea>
+    <br>
+    <button onclick="sendMessage()">Отправить</button>
+    <div id="response"></div>
+    
+    <script>
+        async function sendMessage() {
+            const apiKey = "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".trim(); // Убедитесь, что ключ без пробелов
+            const userInput = document.getElementById("userInput").value;
+            const responseDiv = document.getElementById("response");
+            
+            if (!userInput) {
+                alert("Введите сообщение!");
+                return;
+            }
+            
+            responseDiv.innerHTML = "<em>GPT-4 думает...</em>";
+            
+            try {
+                const response = await fetch("https://api.openai.com/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json; charset=UTF-8",
+                        "Authorization": `Bearer ${encodeURIComponent(apiKey)}`
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-4",
+                        messages: [{ role: "user", content: userInput }],
+                        max_tokens: 1000
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Ошибка сервера: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data.choices || data.choices.length === 0) {
+                    throw new Error("Ответ от GPT-4 пуст.");
+                }
+                
+                responseDiv.innerHTML = data.choices[0].message.content;
+            } catch (error) {
+                responseDiv.innerHTML = "Ошибка: " + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
